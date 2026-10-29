@@ -102,7 +102,7 @@ class Profiles(private val store: Store) {
 
         /// The WebView profile that keeps a profile's cookies and site data:
         /// the WebView's default one for the first profile.
-        fun webViewProfileName(id: String): String = if (id == FIRST) "Default" else "noor-$id"
+        fun webViewProfileName(id: String): String = if (id == FIRST) androidx.webkit.Profile.DEFAULT_PROFILE_NAME else "noor-$id"
 
         /// Private tabs' WebView profile, emptied when the last one closes.
         const val PRIVATE_WEBVIEW_PROFILE = "noor-private"

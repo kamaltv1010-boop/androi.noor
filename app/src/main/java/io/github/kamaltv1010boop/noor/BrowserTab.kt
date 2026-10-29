@@ -147,7 +147,9 @@ class BrowserTab(
     @SuppressLint("SetJavaScriptEnabled")
     private fun createWebView(): WebView {
         val webView = WebView(model.activity)
-        if (Features.multiProfile) {
+        // A profile other than the WebView's default one is set (and made,
+        // the first time) before the WebView does anything else.
+        if (Features.multiProfile && webViewProfile != androidx.webkit.Profile.DEFAULT_PROFILE_NAME) {
             try {
                 WebViewCompat.setProfile(webView, webViewProfile)
             } catch (e: Exception) {
