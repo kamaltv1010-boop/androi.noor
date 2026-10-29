@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The iPhone app's icon (Support/AppIcon.svg there): a shield with a
+     four-point star of light, a warm glow and a faint orbit. Vector drawables
+     have no blur, so the glows are radial gradients and the shield's shadow
+     is a few soft layers. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="1024"
+    android:viewportHeight="1024">
+    <group
+        android:pivotX="512"
+        android:pivotY="510"
+        android:scaleX="0.62"
+        android:scaleY="0.62">
+        <!-- glow -->
+        <path android:pathData="M42,500 a470,470 0 1,0 940,0 a470,470 0 1,0 -940,0 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="radial"
+                    android:centerX="512"
+                    android:centerY="500"
+                    android:gradientRadius="470">
+                    <item android:offset="0" android:color="#8CFFB36B" />
+                    <item android:offset="0.45" android:color="#2EFF7A59" />
+                    <item android:offset="1" android:color="#00FF7A59" />
+                </gradient>
+            </aapt:attr>
+        </path>
+        <!-- faint orbit -->
+        <group
+            android:pivotX="512"
+            android:pivotY="512"
+            android:rotation="-28">
+            <path
+                android:pathData="M112,512 a400,150 0 1,0 800,0 a400,150 0 1,0 -800,0 Z"
+                android:strokeColor="#1AFFFFFF"
+                android:strokeWidth="10" />
+        </group>
+        <!-- the shield's shadow -->
+        <group android:translateY="18">
+            <path
+                android:fillColor="#1405041A"
+                android:pathData="M512,150 C610,218 714,246 818,250 C818,532 736,734 512,876 C288,734 206,532 206,250 C310,246 414,218 512,150 Z" />
+            <path
+                android:fillColor="#2405041A"
+                android:pathData="M512,160 C606,226 707,253 808,257 C808,530 728,725 512,862 C296,725 216,530 216,257 C317,253 418,226 512,160 Z" />
+        </group>
+        <!-- shield -->
+        <path android:pathData="M512,168 C604,232 702,258 800,262 C800,528 722,718 512,852 C302,718 224,528 224,262 C322,258 420,232 512,168 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="512"
+                    android:startY="168"
+                    android:endX="512"
+                    android:endY="852">
+                    <item android:offset="0" android:color="#FFFFFFFF" />
+                    <item android:offset="1" android:color="#FFDCD8FF" />
+                </gradient>
+            </aapt:attr>
+        </path>
+        <!-- the light's glow -->
+        <path android:pathData="M312,500 a200,200 0 1,0 400,0 a200,200 0 1,0 -400,0 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="radial"
+                    android:centerX="512"
+                    android:centerY="500"
+                    android:gradientRadius="200">
+                    <item android:offset="0" android:color="#73FF8A4C" />
+                    <item android:offset="0.6" android:color="#26FF8A4C" />
+                    <item android:offset="1" android:color="#00FF8A4C" />
+                </gradient>
+            </aapt:attr>
+        </path>
+        <!-- light: a four-point star -->
+        <path android:pathData="M512,330 Q534,474 676,500 Q534,526 512,670 Q490,526 348,500 Q490,474 512,330 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="348"
+                    android:startY="330"
+                    android:endX="676"
+                    android:endY="670">
+                    <item android:offset="0" android:color="#FFFFD27A" />
+                    <item android:offset="0.5" android:color="#FFFF8A4C" />
+                    <item android:offset="1" android:color="#FFF2457A" />
+                </gradient>
+            </aapt:attr>
+        </path>
+        <path
+            android:fillColor="#FFFFF6E8"
+            android:pathData="M512,478 a22,22 0 1,0 0.1,0 Z" />
+    </group>
+</vector>
