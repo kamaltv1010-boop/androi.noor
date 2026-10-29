@@ -73,20 +73,22 @@ class BrowserModel(val activity: MainActivity) {
     /// An address another app opens, waiting for the user to agree.
     var externalUrl by mutableStateOf<String?>(null)
 
+    // Each setting changes through its setX(…) below, which keeps it and
+    // applies it; the state's own setter takes another JVM name for that.
     var searchEngine by mutableStateOf(SearchEngine.named(store.getString(Prefs.SEARCH_ENGINE)))
-        private set
+        @JvmName("putSearchEngine") private set
     var blockTrackers by mutableStateOf(store.getBoolean(Prefs.BLOCK_TRACKERS, true))
-        private set
+        @JvmName("putBlockTrackers") private set
     var httpsUpgrade by mutableStateOf(store.getBoolean(Prefs.HTTPS_UPGRADE, true))
-        private set
+        @JvmName("putHttpsUpgrade") private set
     var cleanLinks by mutableStateOf(store.getBoolean(Prefs.CLEAN_LINKS, true))
-        private set
+        @JvmName("putCleanLinks") private set
     var nightMode by mutableStateOf(store.getBoolean(Prefs.NIGHT_MODE, false))
-        private set
+        @JvmName("putNightMode") private set
     var hideInSwitcher by mutableStateOf(store.getBoolean(Prefs.HIDE_IN_SWITCHER, false))
-        private set
+        @JvmName("putHideInSwitcher") private set
     var clearOnExit by mutableStateOf(store.getBoolean(Prefs.CLEAR_ON_EXIT, false))
-        private set
+        @JvmName("putClearOnExit") private set
     /// Changes when a switch of the protection changes, so the screens update.
     var protectionVersion by mutableStateOf(0)
         private set

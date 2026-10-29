@@ -74,11 +74,13 @@ class BrowserTab(
     /// A restored tab loads this address when it is shown.
     var pendingUrl by mutableStateOf(restored?.url)
         private set
+    // These two change through setDesktop(…) and setZoom(…) below, so
+    // their own setters take other JVM names.
     var isDesktop by mutableStateOf(false)
-        private set
+        @JvmName("putDesktop") private set
     /// The text size, 100 being the page's own.
     var zoom by mutableIntStateOf(100)
-        private set
+        @JvmName("putZoom") private set
     var shieldsUp by mutableStateOf(true)
         private set
     /// A picture of the page for the tab overview.
