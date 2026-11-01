@@ -1,8 +1,10 @@
 # Builds Noor for Android: an APK every phone installs, signed with the same
-# key each time, so a new version installs over the last. Every build of main
-# becomes a release (v1.0.<run number>); a pushed tag like v1.2.0 makes a
-# release of that version. The emulator job opens pages in Noor on a real
-# Android to check the protection.
+# key each time, so a new version installs over the last. The emulator job
+# opens pages in Noor on a real Android to check the protection. Every build
+# of main becomes a release (v1.0.<run number>), and a pushed tag like v1.2.0
+# a release of that version, only once both jobs passed (the release job
+# waits for them); its description is in Arabic, from CHANGELOG.md. Run by
+# hand on another branch, it builds and tests, and publishes nothing.
 name: Build
 
 on:
@@ -11,8 +13,10 @@ on:
     tags: ["v*"]
   workflow_dispatch:
 
+# Read only, but for the two jobs that need to write (below): the emulator
+# job, with actions from outside GitHub, can't reach the signing key.
 permissions:
-  contents: write
+  contents: read
 
 # One build at a time: the first one makes the signing key.
 concurrency:
@@ -23,6 +27,12 @@ jobs:
   android:
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    # The signing key is the file of a draft release, which only a token
+    # that may write reads (and the first build makes it).
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     env:
       NOOR_KEYSTORE_PASSWORD: noor-android-release
     steps:
@@ -43,6 +53,7 @@ jobs:
       # Every build has its own version: 1.0.<run number>, or the tag's
       # version for a release (v1.2.0 -> 1.2.0).
       - name: Version this build
+        id: version
         run: |
           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
             version="${GITHUB_REF#refs/tags/v}"
@@ -51,6 +62,7 @@ jobs:
           fi
           echo "NOOR_VERSION=$version" >> "$GITHUB_ENV"
           echo "NOOR_VERSION_CODE=$GITHUB_RUN_NUMBER" >> "$GITHUB_ENV"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "Building Noor $version"
 
       # The key every version is signed with, so each one installs over the
@@ -89,29 +101,6 @@ jobs:
           path: Noor-*.apk
           if-no-files-found: error
 
-      - name: Release notes
-        run: |
-          {
-            echo "Build $NOOR_VERSION of commit ${GITHUB_SHA::7}."
-            echo
-            echo '```'
-            git log -1 --pretty=%B
-            echo '```'
-            echo
-            echo "Android 8 or later. Download Noor-$NOOR_VERSION.apk on the phone and open it; the first time, Android asks to allow installing from the browser or files app."
-          } > release-notes.md
-
-      - name: Publish the release
-        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ env.NOOR_VERSION }}
-          name: Noor for Android ${{ env.NOOR_VERSION }}
-          target_commitish: ${{ github.sha }}
-          body_path: release-notes.md
-          files: Noor-*.apk
-          fail_on_unmatched_files: true
-
   emulator:
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -145,3 +134,54 @@ jobs:
       - name: What the test saw
         if: always()
         run: find app/build -path '*androidTest-results*' -name '*.txt' -exec cat {} \; 2>/dev/null | grep -E "NoorTest|probe|brands|FAILED|Assertion" | head -50 || true
+
+  # A version users install: the APK the android job built and signed, once
+  # Noor also opened pages on the emulator; from main or a version tag only.
+  release:
+    needs: [android, emulator]
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      NOOR_VERSION: ${{ needs.android.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: Noor-${{ needs.android.outputs.version }}
+
+      # The release's description, in Arabic: what this version fixes and
+      # changes, from its own section of CHANGELOG.md, or "Unreleased" until
+      # it has one; then how to install it.
+      - name: Release notes
+        run: |
+          section() { awk -v h="## $1" '$0 == h { on = 1; next } on && /^## / { exit } on' CHANGELOG.md; }
+          changes="$(section "$NOOR_VERSION")"
+          if [ -z "$(printf '%s' "$changes" | tr -d '[:space:]')" ]; then changes="$(section "Unreleased")"; fi
+          {
+            echo "## نور لـ Android $NOOR_VERSION"
+            echo
+            echo "### ما الذي أُصلح وتغيّر في هذه النسخة"
+            echo
+            if [ -n "$(printf '%s' "$changes" | tr -d '[:space:]')" ]; then printf '%s\n' "$changes"; else git log -1 --pretty=%B; fi
+            echo
+            echo "### التثبيت"
+            echo
+            echo "يعمل على Android 8 أو أحدث. نزّل الملف \`Noor-$NOOR_VERSION.apk\` على الهاتف وافتحه. في المرة الأولى يطلب Android السماح بالتثبيت من المتصفح أو من تطبيق الملفات."
+            echo
+            echo "الـ commit: \`${GITHUB_SHA::7}\`"
+          } > release-notes.md
+          cat release-notes.md
+
+      - name: Publish the release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.NOOR_VERSION }}
+          name: Noor for Android ${{ env.NOOR_VERSION }}
+          target_commitish: ${{ github.sha }}
+          body_path: release-notes.md
+          files: Noor-*.apk
+          fail_on_unmatched_files: true
