@@ -73,6 +73,6 @@ gradle connectedDebugAndroidTest     # الاختبار الكامل على تل
 - `app/src/main/assets/protect.js` ما كيتبدلش بالإيد: كيتولّد من `AmirBrowser/FingerprintProtection.swift` ديال تطبيق iPhone:
   `python3 tools/extract_from_ios.py ../Amir/AmirBrowser/FingerprintProtection.swift`
 - النصوص ديال الواجهة (العربية، الفرنسية والإنجليزية) كيتولّدو من الجدول لي فـ `tools/strings.py`: `python3 tools/strings.py`.
-- كل push لـ `main` كيبني APK موقّع ويدير release `v1.0.<رقم البناء>` (`.github/workflows/build.yml`)، وكيجرّب التطبيق على Android emulator. المفتاح لي كيتوقّع بيه كاين فـ draft release سميتها `signing-key` (كيشوفها غير مول الـ repo): **ما تمسحهاش**، وإلا النسخ الجاية ما يتثبتوش فوق القديمة.
+- كل push لـ `main` كيبني APK موقّع وكيجرّب التطبيق على Android emulator، وغير إلا نجحو بجوج عاد كيدير release `v1.0.<رقم البناء>`، والوصف ديالها بالعربية من `CHANGELOG.md` (`.github/workflows/build.yml`). المفتاح لي كيتوقّع بيه كاين فـ draft release سميتها `signing-key` (كيشوفها غير مول الـ repo): **ما تمسحهاش**، وإلا النسخ الجاية ما يتثبتوش فوق القديمة.
 
 </div>
