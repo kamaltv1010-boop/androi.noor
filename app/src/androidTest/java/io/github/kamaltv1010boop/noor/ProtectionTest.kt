@@ -47,19 +47,27 @@ window.first = (() => {
             while (running) {
                 val socket = try { server.accept() } catch (e: Exception) { break }
                 thread {
-                    socket.use {
-                        val reader = it.getInputStream().bufferedReader()
-                        while (true) {
-                            val line = reader.readLine() ?: break
-                            if (line.isEmpty()) break
+                    // A request the WebView drops before the answer is all
+                    // written (a page it no longer wants) ends that answer
+                    // only: uncaught, the IOException ("Broken pipe") would
+                    // end the whole test process (build 5 of this repo).
+                    try {
+                        socket.use {
+                            val reader = it.getInputStream().bufferedReader()
+                            while (true) {
+                                val line = reader.readLine() ?: break
+                                if (line.isEmpty()) break
+                            }
+                            val body = page.toByteArray()
+                            val head = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: ${body.size}\r\nConnection: close\r\n\r\n"
+                            it.getOutputStream().apply {
+                                write(head.toByteArray())
+                                write(body)
+                                flush()
+                            }
                         }
-                        val body = page.toByteArray()
-                        val head = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: ${body.size}\r\nConnection: close\r\n\r\n"
-                        it.getOutputStream().apply {
-                            write(head.toByteArray())
-                            write(body)
-                            flush()
-                        }
+                    } catch (e: java.io.IOException) {
+                        Log.i("NoorTest", "a request went away before its answer: $e")
                     }
                 }
             }
